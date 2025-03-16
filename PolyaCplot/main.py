@@ -218,8 +218,9 @@ def deformedCoordinateGrid(
 
     u, v = result.real, -result.imag
 
-    plt.contour(u, v, X, levels=grid_levels, colors='grey')
-    plt.contour(u, v, Y, levels=grid_levels, colors='grey')
+    # TODO доделать
+    # plt.contour(u, v, X, levels=grid_levels, colors='grey')
+    # plt.contour(u, v, Y, levels=grid_levels, colors='grey')
 
 
 if __name__ == '__main__':
