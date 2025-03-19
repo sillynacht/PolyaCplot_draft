@@ -1,7 +1,7 @@
 import numpy as np
 import sympy as sp
 import matplotlib.pyplot as plt
-from typing import Union, Callable
+from typing import Union, Callable, Optional
 
 
 def gridForImage(
@@ -14,8 +14,8 @@ def gridForImage(
     """
     get a coordinate grid for an image
 
-    :param x_range: Range of x-axis values, default is (-2, 2).
-    :param y_range: Range of y-axis values, default is (-2, 2).
+    :param x_range: Range of x-axis values.
+    :param y_range: Range of y-axis values.
     :param density: Number of grid points per axis for vector field.
     :param linspace_kwargs: parameters for np.linspace.
     :param meshgrid_kwargs: parameters for np.meshgrid.
@@ -44,30 +44,35 @@ def getFunc(f_expr: Union[sp.Expr, Callable[[np.ndarray], np.ndarray]], z: sp.Sy
         return sp.lambdify(z, f_expr, "numpy")
 
 
-def polyaVectorplot(
+def Vectorplot(
         f_expr: Union[sp.Expr, Callable[[np.ndarray], np.ndarray]],
         z: sp.Symbol,
-        x_range: tuple[float, float] = (-2, 2),
-        y_range: tuple[float, float] = (-2, 2),
+        ax: Optional[plt.Axes] = None,  
+        x_range: tuple[float, float] = (-5, 5),
+        y_range: tuple[float, float] = (-5, 5),
         density: int = 10,
         colormap: str = "plasma",
         quiver_kwargs: dict = None,
         linspace_kwargs: dict = None,
-        meshgrid_kwargs: dict = None
+        meshgrid_kwargs: dict = None,
 ) -> None:
     """
     Plots the Polya vector field for a complex function f(z).
 
     :param f_expr: Expression representing the complex function f(z).
     :param z: Symbol representing the complex variable z.
-    :param x_range: Range of x-axis values, default is (-2, 2).
-    :param y_range: Range of y-axis values, default is (-2, 2).
+    :param ax:  
+    :param x_range: Range of x-axis values, default is (-5, 5).
+    :param y_range: Range of y-axis values, default is (-5, 5).
     :param density: Number of grid points per axis for vector field.
     :param colormap: Color of the streamplot, default is "plasma".
     :param linspace_kwargs: parameters for np.linspace.
     :param meshgrid_kwargs: parameters for np.meshgrid.
     :param quiver_kwargs: parameters for plt.quiver.
     """
+    if ax is None:
+        ax = plt.gca()
+
     X, Y = gridForImage(x_range, y_range, density, linspace_kwargs, meshgrid_kwargs)
     Z = X + Y * 1j
 
@@ -82,13 +87,14 @@ def polyaVectorplot(
     if quiver_kwargs is None:
         quiver_kwargs = {}
 
-    plt.quiver(X, Y, U, V, magnitude, cmap=colormap, **quiver_kwargs)
+    ax.quiver(X, Y, U, V, magnitude, cmap=colormap, **quiver_kwargs)
 
-def polyaStreamplot(
+def Streamplot(
         f_expr: sp.Expr,
         z: sp.Symbol,
-        x_range: tuple[float, float] = (-2, 2),
-        y_range: tuple[float, float] = (-2, 2),
+        ax: Optional[plt.Axes] = None,
+        x_range: tuple[float, float] = (-5, 5),
+        y_range: tuple[float, float] = (-5, 5),
         density: int = 10,
         streamline_density: Union[tuple[int, int], int] = (2, 2),
         colormap: str = "plasma",
@@ -101,8 +107,9 @@ def polyaStreamplot(
 
     :param f_expr: Expression representing the complex function f(z).
     :param z: Symbol representing the complex variable z.
-    :param x_range: Range of x-axis values, default is (-2, 2).
-    :param y_range: Range of y-axis values, default is (-2, 2).
+    :param ax: 
+    :param x_range: Range of x-axis values, default is (-5, 5).
+    :param y_range: Range of y-axis values, default is (-5, 5).
     :param density: Number of grid points per axis for streamplot.
     :param streamline_density: Density of the streamlines, default is (2, 2).
     :param colormap: Color of the streamplot, default is "plasma".
@@ -110,6 +117,9 @@ def polyaStreamplot(
     :param linspace_kwargs: parameters for np.linspace.
     :param meshgrid_kwargs: parameters for np.meshgrid.
     """
+    if ax is None:
+        ax = plt.gca()
+
     X, Y = gridForImage(x_range, y_range, density, linspace_kwargs, meshgrid_kwargs)
     Z = X + Y * 1j
 
@@ -122,14 +132,15 @@ def polyaStreamplot(
     if streamplot_kwargs is None:
         streamplot_kwargs = {}
 
-    plt.streamplot(X, Y, u, v, color=magnitude, cmap=colormap, density=streamline_density, **streamplot_kwargs)
+    ax.streamplot(X, Y, u, v, color=magnitude, cmap=colormap, density=streamline_density, **streamplot_kwargs)
 
 
 def zeros(
         f_expr: sp.Expr,
         z: sp.Symbol,
-        x_range: tuple[float, float] = (-2, 2),
-        y_range: tuple[float, float] = (-2, 2),
+        ax: Optional[plt.Axes] = None,
+        x_range: tuple[float, float] = (-5, 5),
+        y_range: tuple[float, float] = (-5, 5),
         scatter_kwargs: dict = None
 ):
     """
@@ -137,13 +148,17 @@ def zeros(
 
     :param f_expr: Expression representing the complex function f(z).
     :param z: Symbol representing the complex variable z.
-    :param x_range: Range of x-axis values, default is (-2, 2).
-    :param y_range: Range of y-axis values, default is (-2, 2).
+    :param ax: 
+    :param x_range: Range of x-axis values, default is (-5, 5).
+    :param y_range: Range of y-axis values, default is (-5, 5).
     :param scatter_kwargs: parameters for plt.scatter.
     """
 
     if not isinstance(f_expr, sp.Expr):
         raise TypeError("Zero detection is supported only for sympy expressions.")
+    
+    if ax is None:
+        ax = plt.gca()
 
     zeros_sym = sp.solve(f_expr, z)
     zeros = []
@@ -160,14 +175,15 @@ def zeros(
         zeros_re, zeros_im = zip(*zeros)
         if scatter_kwargs is None:
             scatter_kwargs = {}
-        plt.scatter(zeros_re, zeros_im, color='red', s=100, zorder=2, label="Нули", **scatter_kwargs)
+        ax.scatter(zeros_re, zeros_im, color='red', s=100, zorder=2, label="Нули", **scatter_kwargs)
 
 
 def poles(
         f_expr: sp.Expr,
         z: sp.Symbol,
-        x_range: tuple[float, float],
-        y_range: tuple[float, float],
+        ax: Optional[plt.Axes] = None,
+        x_range: tuple[float, float] = (-5, 5),
+        y_range: tuple[float, float] = (-5, 5),
         scatter_kwargs: dict = None
 ):
     """
@@ -175,12 +191,16 @@ def poles(
 
     :param f_expr: Expression representing the complex function f(z).
     :param z: Symbol representing the complex variable z.
-    :param x_range: Range of x-axis values, default is (-2, 2).
-    :param y_range: Range of y-axis values, default is (-2, 2).
+    :param ax: 
+    :param x_range: Range of x-axis values, default is (-5, 5).
+    :param y_range: Range of y-axis values, default is (-5, 5).
     :param scatter_kwargs: parameters for plt.scatter.
     """
     if not isinstance(f_expr, sp.Expr):
         raise TypeError("Pole detection is supported only for sympy expressions.")
+    
+    if ax is None:
+        ax = plt.gca()
 
     f_expr_simpl = sp.together(sp.simplify(f_expr))
     num, den = sp.fraction(f_expr_simpl)
@@ -199,17 +219,24 @@ def poles(
         poles_re, poles_im = zip(*poles)
         if scatter_kwargs is None:
             scatter_kwargs = {}
-        plt.scatter(poles_re, poles_im, color='blue', s=100, marker='x', label="Полюса", **scatter_kwargs)
+        ax.scatter(poles_re, poles_im, color='blue', s=100, marker='x', label="Полюса", **scatter_kwargs)
 
 
 def deformedCoordinateGrid(
         f_expr,
         z,
+        ax: Optional[plt.Axes] = None,
         x_range: tuple[float, float] = (-5, 5),
         y_range: tuple[float, float] = (-5, 5),
         density: int = 30,
         grid_levels: int = 10
 ):
+    '''
+    Deforms the coordinate grid according to the function f(z) = f(x + iy) = u(x, y) + iv(x, y).
+    '''
+    if ax is None:
+        ax = plt.gca()
+
     X, Y = gridForImage(x_range, y_range, density)
     Z = X + Y * 1j
 
@@ -218,21 +245,33 @@ def deformedCoordinateGrid(
 
     u, v = result.real, -result.imag
 
-    # TODO доделать
-    # plt.contour(u, v, X, levels=grid_levels, colors='grey')
-    # plt.contour(u, v, Y, levels=grid_levels, colors='grey')
+    levels_real = np.linspace(np.min(u), np.max(u), grid_levels)
+    levels_imag = np.linspace(np.min(v), np.max(v), grid_levels)
+
+    ax.contour(X, Y, u, levels=levels_real, colors='grey', linestyles='solid')
+    ax.contour(X, Y, v, levels=levels_imag, colors='grey', linestyles='solid')
 
 
 if __name__ == '__main__':
-    fig, ax = plt.subplots()
+    fig, (ax_left, ax_right) = plt.subplots(1, 2, figsize=(12, 6))
 
-    z = sp.symbols('z')
-    f_expr = 1 / z ** 2 
-    polyaStreamplot(f_expr, z, density=20, streamline_density=2.5, x_range=(-5, 5), y_range=(-5, 5))
-    deformedCoordinateGrid(f_expr, z)
-    plt.legend()
-    plt.show()
+    z = sp.Symbol('z')
+    f_expr = sp.exp(z) / z
 
+    Streamplot(
+        f_expr=f_expr, z=z,
+        ax=ax_left,
+        x_range=(-1, 1), y_range=(-1, 1),
+        density=100
+    )
 
-    polyaVectorplot(f_expr, density=20)
+    deformedCoordinateGrid(f_expr=f_expr, z=z, ax=ax_left, x_range=(-1, 1), y_range=(-1, 1), density=100)
+
+    Streamplot(
+        f_expr=f_expr, z=z,
+        ax=ax_right,
+        x_range=(-1, 1), y_range=(-1, 1)
+    )
+
+    plt.tight_layout()
     plt.show()

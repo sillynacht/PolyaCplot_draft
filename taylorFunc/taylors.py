@@ -9,7 +9,7 @@ matplotlib.use('Qt5Agg')
 import sympy as sp
 import matplotlib.pyplot as plt
 from matplotlib.widgets import Slider
-from PolyaCplot.main import polyaStreamplot
+from PolyaCplot.main import Streamplot
 
 def taylor_poly(f_expr, var, n_terms):
     poly = 0
@@ -31,15 +31,12 @@ def cos_series(
     fig, (ax_left, ax_right) = plt.subplots(1, 2, figsize=(12, 6))
     plt.subplots_adjust(bottom=0.25)
 
-    plt.sca(ax_left)
-    polyaStreamplot(f_expr, z, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
+    Streamplot(f_expr, z, ax_left, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
     ax_left.set_title("Функция cos(z)")
 
     n_init = 5
     taylor_expr = taylor_poly(f_expr, z, n_init)
-    plt.sca(ax_right)
-
-    polyaStreamplot(taylor_expr, z, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
+    Streamplot(taylor_expr, z, ax_right, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
     ax_right.set_title(f"Ряд Тейлора cos(z) (n={n_init} членов)")
 
     ax_slider = plt.axes((0.25, 0.1, 0.65, 0.03))
@@ -48,9 +45,8 @@ def cos_series(
     def update(val):
         n = int(slider.val)
         ax_right.clear()
-        plt.sca(ax_right)
         new_taylor_expr = taylor_poly(f_expr, z, n)
-        polyaStreamplot(new_taylor_expr, z, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
+        Streamplot(new_taylor_expr, z, ax_right, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
         ax_right.set_title(f"Ряд Тейлора cos(z) (n={n} членов)")
         fig.canvas.draw_idle()
 
@@ -64,21 +60,18 @@ def sin_series(
         density=20,
         colormap="plasma"
 ):
-    f_expr = sp.sin(z)
     z = sp.symbols('z')
+    f_expr = sp.sin(z)
 
     fig, (ax_left, ax_right) = plt.subplots(1, 2, figsize=(12, 6))
     plt.subplots_adjust(bottom=0.25)
 
-    plt.sca(ax_left)
-    polyaStreamplot(f_expr, z, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
+    Streamplot(f_expr, z, ax_left, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
     ax_left.set_title("Функция sin(z)")
 
     n_init = 5
     taylor_expr = taylor_poly(f_expr, z, n_init)
-    plt.sca(ax_right)
-
-    polyaStreamplot(taylor_expr, z, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
+    Streamplot(taylor_expr, z, ax_right, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
     ax_right.set_title(f"Ряд Тейлора sin(z) (n={n_init} членов)")
 
     ax_slider = plt.axes((0.25, 0.1, 0.65, 0.03))
@@ -87,9 +80,8 @@ def sin_series(
     def update(val):
         n = int(slider.val)
         ax_right.clear()
-        plt.sca(ax_right)
         new_taylor_expr = taylor_poly(f_expr, z, n)
-        polyaStreamplot(new_taylor_expr, z, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
+        Streamplot(new_taylor_expr, z, ax_right, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
         ax_right.set_title(f"Ряд Тейлора sin(z) (n={n} членов)")
         fig.canvas.draw_idle()
 
@@ -109,15 +101,12 @@ def exp_series(
     fig, (ax_left, ax_right) = plt.subplots(1, 2, figsize=(12, 6))
     plt.subplots_adjust(bottom=0.25)
 
-    plt.sca(ax_left)
-    polyaStreamplot(f_expr, z, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
+    Streamplot(f_expr, z, ax_left, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
     ax_left.set_title("Функция exp(z)")
 
     n_init = 5
     taylor_expr = taylor_poly(f_expr, z, n_init)
-    plt.sca(ax_right)
-
-    polyaStreamplot(taylor_expr, z, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
+    Streamplot(taylor_expr, z, ax_right, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
     ax_right.set_title(f"Ряд Тейлора exp(z) (n={n_init} членов)")
 
     ax_slider = plt.axes((0.25, 0.1, 0.65, 0.03))
@@ -126,11 +115,13 @@ def exp_series(
     def update(val):
         n = int(slider.val)
         ax_right.clear()
-        plt.sca(ax_right)
         new_taylor_expr = taylor_poly(f_expr, z, n)
-        polyaStreamplot(new_taylor_expr, z, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
+        Streamplot(new_taylor_expr, z, ax_right, x_range=x_range, y_range=y_range, density=density, colormap=colormap)
         ax_right.set_title(f"Ряд Тейлора exp(z) (n={n} членов)")
         fig.canvas.draw_idle()
 
     slider.on_changed(update)
     plt.show()
+
+if __name__ == '__main__':
+    sin_series()
